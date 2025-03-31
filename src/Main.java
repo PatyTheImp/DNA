@@ -1,3 +1,6 @@
+import DNA.DnaAssembler;
+import DNA.DnaSequence;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +15,7 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int nFrags = Integer.parseInt(br.readLine());
         // fragment interval [a,b] => fragments[i][0] = a;  fragments[i][1] = b;
-        int[][] fragments = new int[nFrags][2];
+        DnaSequence[] fragments = new DnaSequence[nFrags];
 
         // 1st position of the complete sequence
         int startPos = Integer.MAX_VALUE;
@@ -20,14 +23,15 @@ public class Main {
         int endPos = Integer.MIN_VALUE;
         for (int i = 0; i < nFrags; i++) {
             String[] range = br.readLine().split(" ");
-            fragments[i][0] = Integer.parseInt(range[0]);
-            fragments[i][1] = Integer.parseInt(range[1]);
-            startPos = Math.min(fragments[i][0], startPos);
-            endPos = Math.max(fragments[i][1], endPos);
+            int start = Integer.parseInt(range[0]);
+            int end = Integer.parseInt(range[1]);
+            fragments[i] = new DnaSequence(start, end);
+            startPos = Math.min(start, startPos);
+            endPos = Math.max(end, endPos);
         }
 
         DnaAssembler assembler = new DnaAssembler(fragments, startPos, endPos);
-        int[] solution = assembler.getOptimalAssembly();
-        System.out.println(solution[0] + " " + solution[1]);
+        DnaSequence solution = assembler.getOptimalAssembly();
+        System.out.println(solution.getnFrags() + " " + solution.getOverlap());
     }
 }
