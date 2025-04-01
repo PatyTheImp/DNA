@@ -1,10 +1,10 @@
 package DNA;
 
 public class DnaSequence implements Comparable<DnaSequence> {
-    private int start;
-    private int end;
-    private int nFrags;
-    private int overlap;
+    private final int start;
+    private final int end;
+    private final int nFrags;
+    private final int overlap;
 
     public DnaSequence(int start, int end) {
         this.start = start;
@@ -38,6 +38,8 @@ public class DnaSequence implements Comparable<DnaSequence> {
 
     @Override
     public int compareTo(DnaSequence o) {
-        return this.getEnd() - o.getEnd();
+        if (this.getStart() == o.getStart())
+            return this.getEnd() - o.getEnd();
+        return this.getStart() - o.getStart();
     }
 }

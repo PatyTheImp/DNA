@@ -4,56 +4,84 @@ import java.util.Arrays;
 
 public class DnaAssembler {
 
-    private final DnaSequence[] fragments;
-    private final int offset;
-    private final DnaSequence[] optimalAssembly;
-    private final int nPos;
+    private final DnaSequence[] sortedFragments;
+    private final DnaSequence[] assembledSequences;
+    private int bestIndex;
+    private final int startPos;
+    private final int endPos;
 
     public DnaAssembler(DnaSequence[] fragments, int startPos, int endPos) {
         Arrays.sort(fragments);
-        this.fragments = fragments;
-        this.offset = startPos - 1;
-        this.nPos = endPos - offset;
-
-        // Has nPos+1 positions because the 1st position is a dummy position corresponding to the base case
-        // optimalAssembly[i][0] = min number of fragments to cover all the positions from startPos to i
-        // optimalAssembly[i][1] = min overlap of those fragments
-        this.optimalAssembly = new DnaSequence[this.fragments.length + 1];
-        // Base case "dummy" position
-        optimalAssembly[0] = new DnaSequence(startPos, startPos - 1, 0, 0);
+        this.sortedFragments = fragments;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        this.bestIndex = -1;
+        this.assembledSequences = new DnaSequence[this.sortedFragments.length];
         computeOptimalAssembly();
     }
 
-    public DnaSequence getOptimalAssembly() {
-        return this.optimalAssembly[this.nPos];
+    public DnaSequence getAssembledSequences() {
+        return this.assembledSequences[this.bestIndex];
     }
 
-    /**
-     * Fills the optimalAssembly matrix so that the last position is the optimal assembly that covers all positions
-     */
     private void computeOptimalAssembly() {
-        for (int i = 0; i < optimalAssembly.length - 1; i++) {
-            // We go through all positions that are covered by at least the end position of one fragment
-            // Always go to the 1st position (base case). No need to go to the last.
-            if (i == 0 || optimalAssembly[i] != null) {
-                // number of fragments needed to cover until this position
-                int nFrags = optimalAssembly[i].getnFrags() + 1;
-                // Let's search for fragments that can be assembled from this position i
-                for (DnaSequence frag : fragments) {
-                    int a = frag.getStart();
-                    int b = frag.getEnd();
-                    int curEnd = optimalAssembly[i].getEnd();
-                    if ((a-1 <= curEnd && b > curEnd) && // 1st we check for a valid fragment
-                            (optimalAssembly[b] == null || optimalAssembly[b].getnFrags() >= nFrags)) { // then we check if the position is not covered or if the nFrag is not optimal
-                        /*int overlap = optimalAssembly[i][1] + curEnd - a + 1;
-                        if (optimalAssembly[b][0] == 0 || optimalAssembly[b][0] > nFrags ||
-                                (optimalAssembly[b][0] == nFrags && optimalAssembly[b][1] > overlap)) {
-                            optimalAssembly[b][0] = nFrags;
-                            optimalAssembly[b][1] = overlap;
-                        }*/
+        int maxI = -1;
+        for (DnaSequence fragment : sortedFragments) {
+            // Base case
+            if (fragment.getStart() == startPos) {
+                assembledSequences[++maxI] = fragment;
+                if (fragment.getEnd() == endPos) {
+                    bestIndex = maxI;
+                    return;
+                }
+            }
+            else {
+                DnaSequence bestCurSeq = null;
+                int subI = -1;
+                for (int i = 0; i <= maxI; i++) {
+                    if (assembledSequences[i].getEnd() == fragment.getEnd())
+                        subI = i;
+                    else if (seqsCanBeAssembled(assembledSequences[i], fragment)) {
+                        DnaSequence newSeq = new DnaSequence(startPos, fragment.getEnd(),
+                                assembledSequences[i].getnFrags() + 1,
+                                calcOverlap(assembledSequences[i], fragment));
+                        if (seq1IsOptimal(newSeq, bestCurSeq))
+                            bestCurSeq = newSeq;
+                    }
+                }
+                if (bestCurSeq != null) {
+                    if (subI > -1 && seq1IsOptimal(bestCurSeq, assembledSequences[subI]))
+                        assembledSequences[subI] = bestCurSeq;
+                    else {
+                        assembledSequences[++maxI] = bestCurSeq;
+                        if (foundNewBest(bestCurSeq))
+                            bestIndex = maxI;
                     }
                 }
             }
         }
+    }
+
+    private boolean seqsCanBeAssembled(DnaSequence seq1, DnaSequence seq2) {
+        return (seq2.getStart() - 1) <= seq1.getEnd() && seq1.getEnd() < seq2.getEnd();
+    }
+
+    private int calcOverlap(DnaSequence seq1, DnaSequence seq2) {
+        return seq1.getOverlap() + seq1.getEnd() - seq2.getStart() + 1;
+    }
+
+    private boolean seq1IsOptimal(DnaSequence seq1, DnaSequence seq2) {
+        if (seq1 == null)
+            return false;
+        if (seq2 == null)
+            return true;
+        return seq1.getnFrags() < seq2.getnFrags()
+                || (seq1.getnFrags() == seq2.getnFrags() && seq1.getOverlap() < seq2.getOverlap());
+    }
+
+    private boolean foundNewBest(DnaSequence seq) {
+        return seq.getEnd() == endPos
+                && (bestIndex == -1 ||
+                (bestIndex > -1 && seq1IsOptimal(seq, assembledSequences[bestIndex])));
     }
 }
