@@ -39,17 +39,23 @@ public class DnaAssembler {
                     if (assembledSequences[i].getEnd() == fragment.getEnd())
                         subI = i;
                     else if (seqsCanBeAssembled(assembledSequences[i], fragment)) {
-                        DnaSequence newSeq = new DnaSequence(startPos, fragment.getEnd(),
-                                assembledSequences[i].getnFrags() + 1,
-                                calcOverlap(assembledSequences[i], fragment));
-                        if (seq1IsOptimal(newSeq, bestCurSeq))
-                            bestCurSeq = newSeq;
+                        int nFrags = assembledSequences[i].getnFrags() + 1;
+                        if (bestCurSeq == null || nFrags < bestCurSeq.getnFrags()) {
+                            bestCurSeq = new DnaSequence(startPos, fragment.getEnd(),
+                                    nFrags, calcOverlap(assembledSequences[i], fragment));
+                        } else if (nFrags == bestCurSeq.getnFrags()) {
+                            int overlap = calcOverlap(assembledSequences[i], fragment);
+                            if (overlap < bestCurSeq.getOverlap()) {
+                                bestCurSeq = new DnaSequence(startPos, fragment.getEnd(),
+                                        nFrags, overlap);
+                            }
+                        }
                     }
                 }
                 if (bestCurSeq != null) {
                     if (subI > -1 && seq1IsOptimal(bestCurSeq, assembledSequences[subI]))
                         assembledSequences[subI] = bestCurSeq;
-                    else {
+                    else if (subI == -1) {
                         assembledSequences[++maxI] = bestCurSeq;
                         if (foundNewBest(bestCurSeq))
                             bestIndex = maxI;
