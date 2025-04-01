@@ -1,7 +1,5 @@
 package DNA;
 
-import java.util.Arrays;
-
 public class DnaAssembler {
 
     private final DnaSequence[] sortedFragments;
@@ -10,9 +8,8 @@ public class DnaAssembler {
     private final int startPos;
     private final int endPos;
 
-    public DnaAssembler(DnaSequence[] fragments, int startPos, int endPos) {
-        Arrays.sort(fragments);
-        this.sortedFragments = fragments;
+    public DnaAssembler(DnaSequence[] sortedFragments, int startPos, int endPos) {
+        this.sortedFragments = sortedFragments;
         this.startPos = startPos;
         this.endPos = endPos;
         this.bestIndex = -1;
