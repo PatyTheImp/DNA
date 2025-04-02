@@ -1,33 +1,36 @@
+import DNA.Fragment;
+import DNA.DnaAssembler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
-/**
- * Note about generative AI: The main logic of this solution was obtained from chatGPT.
- * Some alterations were made to better fit the requirements of this course unit.
- */
 public class Main {
-
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int nFrags = Integer.parseInt(br.readLine());
-        // fragment interval [a,b] => fragments[i][0] = a;  fragments[i][1] = b;
-        int[][] fragments = new int[nFrags][2];
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        int minPos = Integer.MAX_VALUE;
+        int maxPos = Integer.MIN_VALUE;
 
-        // 1st position of the complete sequence
-        int startPos = Integer.MAX_VALUE;
-        // last position of the complete sequence
-        int endPos = Integer.MIN_VALUE;
-        for (int i = 0; i < nFrags; i++) {
-            String[] range = br.readLine().split(" ");
-            fragments[i][0] = Integer.parseInt(range[0]);
-            fragments[i][1] = Integer.parseInt(range[1]);
-            startPos = Math.min(fragments[i][0], startPos);
-            endPos = Math.max(fragments[i][1], endPos);
+        int fragmentsNumber = Integer.parseInt(in.readLine());
+        Fragment[] fragments = new Fragment[fragmentsNumber];
+
+        for (int i = 0; i < fragmentsNumber; i++) {
+            String[] fragment = in.readLine().split(" ");
+
+            int first = Integer.parseInt(fragment[0]);
+            int second = Integer.parseInt(fragment[1]);
+            fragments[i] = new Fragment(first, second);
+
+            minPos = Math.min(minPos, fragments[i].getMinPos());
+            maxPos = Math.max(maxPos, fragments[i].getMaxPos());
         }
 
-        DnaAssembler assembler = new DnaAssembler(fragments, startPos, endPos);
-        int[] solution = assembler.getOptimalAssembly();
-        System.out.println(solution[0] + " " + solution[1]);
+        Arrays.sort(fragments);
+        DnaAssembler dna = new DnaAssembler(fragments, minPos, maxPos);
+        int[] sol = dna.getSolution();
+        System.out.println(sol[0] + " " + sol[1]);
+        in.close();
+
     }
 }

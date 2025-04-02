@@ -1,4 +1,4 @@
-# DNA Fragment Assembly
+# DNA DNA.Fragment Assembly
 
 
 In bioinformatics, genome sequencing involves reconstructing a complete DNA sequence from numerous short fragments (or reads). Due to the limitations of sequencing technology, these fragments may overlap. The goal is to reassemble the genome efficiently by minimizing the number of fragments used and their redundancy.
@@ -11,7 +11,7 @@ The goal is to select a subset of fragments that cover all positions, that is, w
 
 Consider an example with six fragments, whose intervals are defined in the table below. For instance, the last fragment has 4 positions: 20, 21, 22, and 23. In this case, the DNA sequence starts at position 13 and ends at position 58.
 
-| Fragment | Interval  |
+| DNA.Fragment | Interval  |
 |----------|-----------|
 | 1        | [13, 30]  |
 | 2        | [13, 22]  |
