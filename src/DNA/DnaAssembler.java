@@ -33,14 +33,14 @@ public class DnaAssembler {
                 optimalStates[i][1] = 0;
             }
 
-            // General cases
+
             if (optimalStates[i][0] != 0) { // skip empty position
                 for (int k = i + 1; k < fragmentCount; k++) {
                     if (fragments[k].getMinPos() > fragments[i].getMaxPos() + 1)
                         break; // there's a gap between fragment i and fragment k
                     int nFrags = optimalStates[i][0] + 1;
                     if (optimalStates[k][0] != 0 && nFrags > optimalStates[k][0])
-                        break; // number of fragments is worse
+                        continue; // number of fragments is worse
                     int overlap = optimalStates[i][1] + fragments[i].getMaxPos() - fragments[k].getMinPos() + 1;
                     // if optimalStates[k] is empty or has worst state
                     if (optimalStates[k][0] == 0 || (nFrags == optimalStates[k][0] && overlap < optimalStates[k][1])) {
