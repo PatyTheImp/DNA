@@ -6,6 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+/**
+ * Main class
+ * Authors: Patrícia Costa 62111 and Catarina Ferreira 65249
+ * Note about generative AI: We used chatGPT to help us develop the main algorithm logic.
+ */
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -26,8 +31,10 @@ public class Main {
             maxPos = Math.max(maxPos, fragments[i].getMaxPos());
         }
 
+        // The fragments need to be sorted for the assembly to properly work
         Arrays.sort(fragments);
         DnaAssembler dna = new DnaAssembler(fragments, minPos, maxPos);
+        // The solution has the format (optimal fragments number, optimal overlap)
         int[] sol = dna.getSolution();
         System.out.println(sol[0] + " " + sol[1]);
         in.close();
